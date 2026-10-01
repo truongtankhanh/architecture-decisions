@@ -1,0 +1,21 @@
+{
+  "name": "architecture-decisions",
+  "private": true,
+  "description": "Architecture decision records and C4 views for a campus operations platform.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "adr:new": "node scripts/adr.mjs new",
+    "adr:index": "node scripts/adr.mjs index",
+    "check": "node scripts/adr.mjs check",
+    "test": "node --test \"scripts/*.test.mjs\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9"
+  }
+}
