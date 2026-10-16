@@ -1,6 +1,6 @@
 # ADR-0006: Service-to-service authentication
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-01
 - **Deciders:** Platform lead
 
@@ -38,7 +38,7 @@ Constraints:
 
 ## Decision
 
-**Proposed: option 1, with the platform's own Keycloak as the identity provider.**
+**Option 1, with the platform's own Keycloak as the identity provider.**
 
 The original proposal (platform-issued API keys first) assumed the identity provider was the
 site's and might be unreachable from the servers. With Keycloak inside the platform it is always
@@ -55,11 +55,18 @@ reachable, so the standard option no longer has that cost.
 - Each incident request carries the alert id as `Idempotency-Key` (the command center's
   ADR-0009), which removes the duplicate-on-retry risk at the same time.
 
-Open questions before acceptance:
+Settled at acceptance:
 
-- The service account's role: a new `integration` role (narrowest), or `technician`, which the
-  command center already scopes to facilities and environment incidents.
-- Who rotates the client secret, and how often (Keycloak can rotate it with a grace period).
+- **Role:** the existing `technician`, not a new `integration` role. It may report any incident
+  and resolve facilities and environment ones, which covers every rule the pipeline has once the
+  CO₂ rule raises `hvac_fault` (ventilation) instead of `crowding` (security). The command center
+  needed no code change, only the realm client (its OCC-29).
+- **Secret:** Keycloak generates it; in the platform's AWS deployment an administrator copies it
+  to Secrets Manager, and rotation is regenerate-and-copy (platform-aws runbook).
+
+Implemented in iot-telemetry-pipeline ITP-20 (its ADR-0006) and checked end to end against the
+command center's API: an alert became an incident reported by `service-account-telemetry-pipeline`
+and was resolved by it, and a replayed `Idempotency-Key` created one incident.
 
 ## Consequences
 

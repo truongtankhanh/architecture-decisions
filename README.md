@@ -42,7 +42,7 @@ cross-system flow, deployment, quality targets and the risk register.
 | [0003](decisions/0003-systems-integrate-through-public-apis-never-a-shared-database.md)   | Systems integrate through public APIs, never a shared database  | Accepted               |
 | [0004](decisions/0004-openapi-is-the-contract-between-systems.md)                         | OpenAPI is the contract between systems                         | Accepted               |
 | [0005](decisions/0005-single-sign-on-for-identity-roles-owned-by-the-platform.md)         | Single sign-on for identity, roles owned by the platform        | Accepted               |
-| [0006](decisions/0006-service-to-service-authentication.md)                               | Service-to-service authentication                               | Proposed               |
+| [0006](decisions/0006-service-to-service-authentication.md)                               | Service-to-service authentication                               | Accepted               |
 | [0007](decisions/0007-compose-on-a-single-host-kubernetes-only-where-scale-needs-it.md)   | Compose on a single host; Kubernetes only where scale needs it  | Accepted               |
 | [0008](decisions/0008-connect-to-cameras-directly-over-onvif-and-rtsp.md)                 | ~~Connect to cameras directly over ONVIF and RTSP~~             | Superseded by ADR-0009 |
 | [0009](decisions/0009-reach-cameras-through-the-site-s-video-management-system.md)        | Reach cameras through the site's video management system        | Accepted               |
