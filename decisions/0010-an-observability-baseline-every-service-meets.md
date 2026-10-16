@@ -49,12 +49,14 @@ to check.
 
 ### Adoption
 
-| Requirement          | Command center   | Telemetry pipeline                     |
-| -------------------- | ---------------- | -------------------------------------- |
-| Liveness / readiness | health only      | ✓                                      |
-| Prometheus metrics   | planned (OCC-24) | ✓ throughput, rejections, gaps, outbox |
-| JSON logs            | planned (OCC-23) | not yet                                |
-| Correlation ids      | planned (OCC-23) | not yet                                |
+Updated as systems adopt the baseline (last: 2026-10-16).
+
+| Requirement          | Command center                 | Telemetry pipeline                     |
+| -------------------- | ------------------------------ | -------------------------------------- |
+| Liveness / readiness | ✓ `/api/health/live`, `/ready` | ✓                                      |
+| Prometheus metrics   | ✓ on an internal port (OCC-24) | ✓ throughput, rejections, gaps, outbox |
+| JSON logs            | ✓ (OCC-23)                     | not yet                                |
+| Correlation ids      | ✓ (OCC-23)                     | not yet                                |
 
 ## Consequences
 

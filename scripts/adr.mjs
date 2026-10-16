@@ -167,6 +167,19 @@ export function brokenLinks(root, file, text) {
 export const normalizeTable = (text) =>
   text.replace(/ *\| */g, '|').replace(/\|-{3,}(?=\|)/g, '|---');
 
+/** `new` arguments: the title (one or several words) and an optional `--supersedes N`. */
+export function parseNewArgs(args) {
+  const at = args.indexOf('--supersedes');
+  const rest = at >= 0 ? [...args.slice(0, at), ...args.slice(at + 2)] : args;
+  const supersedes = at >= 0 ? Number(args[at + 1]) : undefined;
+  if (supersedes !== undefined && !Number.isInteger(supersedes)) {
+    throw new Error('--supersedes needs a record number');
+  }
+  const title = rest.join(' ').trim();
+  if (!title) throw new Error('usage: adr new "Title" [--supersedes N]');
+  return { title, supersedes };
+}
+
 export const pad = (n) => String(n).padStart(4, '0');
 export const slug = (title) =>
   title
@@ -233,13 +246,7 @@ function index() {
 }
 
 function create(args) {
-  const supersedesAt = args.indexOf('--supersedes');
-  const supersedes = supersedesAt >= 0 ? Number(args[supersedesAt + 1]) : undefined;
-  const title = args
-    .filter((_, i) => i !== supersedesAt && i !== supersedesAt + 1)
-    .join(' ')
-    .trim();
-  if (!title) throw new Error('usage: adr new "Title" [--supersedes N]');
+  const { title, supersedes } = parseNewArgs(args);
 
   const records = loadRecords();
   const number = Math.max(0, ...records.map((r) => r.number)) + 1;

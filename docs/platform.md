@@ -178,28 +178,32 @@ on `SIGTERM`, and the observability baseline of
 [ADR-0010](../decisions/0010-an-observability-baseline-every-service-meets.md) (adoption in
 progress — see its table).
 
+The same images also run on AWS for operators that allow cloud hosting
+([ADR-0012](../decisions/0012-offer-an-aws-deployment-where-the-operator-allows-cloud-hosting.md));
+[platform-aws](https://github.com/truongtankhanh/platform-aws) describes that deployment.
+
 ## 5. Quality attributes
 
-| Attribute     | Target                                                          | How it is met                                                                           |
-| ------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Freshness     | An incident appears on every console within 1 s of being stored | Domain events after commit, pushed over WebSocket                                       |
-| Alert latency | A breach becomes an incident within seconds of the Nth reading  | 250 ms flush, 1 s delivery poll                                                         |
-| Throughput    | Campus-wide sensors on one ingest replica, with headroom        | ≈ 10 000 msg/s measured on 2 vCPU; more replicas via shared subs                        |
-| Completeness  | Data loss is measured, not assumed                              | Per-device sequence numbers, gap metric                                                 |
-| Availability  | Ingest keeps running when the command center is down            | Outbox; no synchronous dependency                                                       |
-| Operability   | Site IT can install and upgrade from a runbook                  | Compose by default, self-migrating services, baseline endpoints                         |
-| Security      | No passwords stored; least privilege by default                 | Planned: OIDC sign-in and platform-owned roles (OCC-21/22), service accounts (proposed) |
+| Attribute     | Target                                                          | How it is met                                                                              |
+| ------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Freshness     | An incident appears on every console within 1 s of being stored | Domain events after commit, pushed over WebSocket                                          |
+| Alert latency | A breach becomes an incident within seconds of the Nth reading  | 250 ms flush, 1 s delivery poll                                                            |
+| Throughput    | Campus-wide sensors on one ingest replica, with headroom        | ≈ 10 000 msg/s measured on 2 vCPU; more replicas via shared subs                           |
+| Completeness  | Data loss is measured, not assumed                              | Per-device sequence numbers, gap metric                                                    |
+| Availability  | Ingest keeps running when the command center is down            | Outbox; no synchronous dependency                                                          |
+| Operability   | Site IT can install and upgrade from a runbook                  | Compose by default, self-migrating services, baseline endpoints                            |
+| Security      | No passwords stored; least privilege by default                 | OIDC sign-in through Keycloak, platform-owned roles (OCC-21/22); service accounts proposed |
 
 ## 6. Risks and technical debt
 
 Reviewed at each milestone. Owner is the system's lead unless noted.
 
-| #   | Risk / debt                                                   | Impact                                                | Mitigation / next step                                                                                          |
-| --- | ------------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| R1  | Command center API is unauthenticated                         | Anyone on the network can create or resolve incidents | OIDC + roles (OCC-21/22); service accounts ([ADR-0006](../decisions/0006-service-to-service-authentication.md)) |
-| R2  | Retried incident creation can duplicate an incident           | Two incidents for one alert after a timeout           | Idempotency key on `POST /api/incidents` (ITP-14, needs command-center support)                                 |
-| R3  | Command center is a single host                               | Host failure = outage until restore                   | Rehearsed restore onto a standby host; revisit per ADR-0007                                                     |
-| R4  | No correlation ids across systems yet                         | Cross-system failures are slow to trace               | ADR-0010 baseline (OCC-23); until then, alert id in incident description                                        |
-| R5  | Consumer's fake of the command center API can drift           | Integration breaks at a site, not in CI               | Contract tests against the published OpenAPI when a second consumer appears (ADR-0004)                          |
-| R6  | Broker queue limits silently drop QoS 1 messages under bursts | Data loss with no error logged                        | Explicit limits in broker config; alert on `telemetry_sequence_gaps_total`                                      |
-| R7  | VMS dependency for all video                                  | VMS outage = no live video                            | Accepted (same for every VMS client); camera tiles show a clear "video unavailable" state                       |
+| #   | Risk / debt                                                   | Impact                                                                                 | Mitigation / next step                                                                                                                    |
+| --- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| R1  | The pipeline cannot authenticate to the command center        | Alerts are recorded but no longer become incidents, since every API call needs a token | Service account in Keycloak, client-credentials flow in the pipeline ([ADR-0006](../decisions/0006-service-to-service-authentication.md)) |
+| R2  | Retried incident creation can duplicate an incident           | Two incidents for one alert after a timeout                                            | The command center accepts an `Idempotency-Key` (its ADR-0009); the pipeline should send the alert id (ITP-14)                            |
+| R3  | Command center is a single host                               | Host failure = outage until restore                                                    | Rehearsed restore onto a standby host; revisit per ADR-0007                                                                               |
+| R4  | The pipeline has no correlation ids yet                       | Cross-system failures are slow to trace                                                | ADR-0010 baseline; the command center has them (OCC-23)                                                                                   |
+| R5  | Consumer's fake of the command center API can drift           | Integration breaks at a site, not in CI                                                | Contract tests against the published OpenAPI when a second consumer appears (ADR-0004)                                                    |
+| R6  | Broker queue limits silently drop QoS 1 messages under bursts | Data loss with no error logged                                                         | Explicit limits in broker config; alert on `telemetry_sequence_gaps_total`                                                                |
+| R7  | VMS dependency for all video                                  | VMS outage = no live video                                                             | Accepted (same for every VMS client); camera tiles show a clear "video unavailable" state                                                 |

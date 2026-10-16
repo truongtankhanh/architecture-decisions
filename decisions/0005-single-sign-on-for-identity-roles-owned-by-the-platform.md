@@ -46,7 +46,10 @@ Option 3.
 - A user disabled in the directory cannot sign in, which is enough for leavers; the platform
   does not need to sync deletions.
 
-Implementation is planned in the command center's M3 (OCC-21, OCC-22).
+Implemented in the command center's M3 (OCC-21, OCC-22) with one difference in where roles are
+stored: they are realm roles in Keycloak, the platform's own identity provider, which federates the
+site's directory and puts the roles in the access token. The decision's point holds — roles are
+owned by the platform, not by the site's directory.
 
 ## Consequences
 

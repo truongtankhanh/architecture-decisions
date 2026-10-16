@@ -2,15 +2,16 @@
 
 - **Status:** Proposed
 - **Date:** 2026-10-01
-- **Deciders:** Platform lead, client IT (for option 1)
+- **Deciders:** Platform lead
 
 ## Context
 
-Today the command center's API has no authentication, and the telemetry pipeline calls it
-anonymously ([ADR-0003](0003-systems-integrate-through-public-apis-never-a-shared-database.md)).
-That is acceptable in a demo and unacceptable at a site. Once user sign-in arrives
-([ADR-0005](0005-single-sign-on-for-identity-roles-owned-by-the-platform.md)), every endpoint
-will require a user — and the pipeline is not a user.
+The command center now requires an OIDC access token on every request (its ADR-0010), issued by
+Keycloak, which the platform runs itself in every deployment — next to the API in Compose, and on
+Fargate on AWS ([platform-aws ADR-0006](https://github.com/truongtankhanh/platform-aws/blob/main/docs/adr/0006-keycloak-on-fargate.md)).
+The telemetry pipeline still calls it anonymously
+([ADR-0003](0003-systems-integrate-through-public-apis-never-a-shared-database.md)), so its alerts
+are recorded but no longer become incidents. The pipeline is not a user.
 
 Constraints:
 
@@ -37,34 +38,38 @@ Constraints:
 
 ## Decision
 
-**Proposed: option 2, with option 1 as the target where the identity provider is reachable.**
+**Proposed: option 1, with the platform's own Keycloak as the identity provider.**
 
-- The command center gains **service accounts**: a named, non-human principal with a role
-  (an `integration` role allowed to create and resolve incidents and read zones, nothing else).
-- An admin issues a key for a service account in the admin screen; the key is shown once, and
-  only its hash is stored. Keys have an expiry and can be revoked.
-- Callers send `Authorization: Bearer <key>`. The API's auth layer resolves either an OIDC user
-  token or a service-account key to the same principal shape, so permission checks and
-  timeline attribution are written once.
-- Where a site's identity provider is reachable from the servers, the same service account can
-  instead be bound to an OAuth client, and the pipeline uses client credentials. The caller's
-  configuration decides which; the API accepts both.
+The original proposal (platform-issued API keys first) assumed the identity provider was the
+site's and might be unreachable from the servers. With Keycloak inside the platform it is always
+reachable, so the standard option no longer has that cost.
+
+- A confidential client `telemetry-pipeline` in the `occ` realm, client-credentials grant only,
+  with a service account holding one role allowed to create and resolve incidents and read zones,
+  and the `occ-api` audience mapper. The command center verifies its token like any other, so
+  permission checks and timeline attribution ("raised by service-account-telemetry-pipeline") need
+  no new code there.
+- The pipeline fetches a token with its client secret, caches it until shortly before expiry, and
+  sends it as a bearer token; a `401` refreshes once. The client secret is injected like the
+  database password.
+- Each incident request carries the alert id as `Idempotency-Key` (the command center's
+  ADR-0009), which removes the duplicate-on-retry risk at the same time.
 
 Open questions before acceptance:
 
-- Does the first real site allow outbound access from the server segment to the identity
-  provider? Decides whether option 1 is usable at all.
-- Who at the site owns key rotation, and on what schedule?
+- The service account's role: a new `integration` role (narrowest), or `technician`, which the
+  command center already scopes to facilities and environment incidents.
+- Who rotates the client secret, and how often (Keycloak can rotate it with a grace period).
 
 ## Consequences
 
-- Works on day one at an offline site, with no dependency on client IT.
-- Introduces long-lived secrets. Mitigated by hashing, expiry, revocation and the narrow role,
-  not eliminated.
-- Two credential types in the auth layer. Kept manageable by resolving both to one principal
-  type at the edge.
+- One credential type in the command center: everything is an OIDC token from the same issuer.
+- A secret still exists — the client secret — but it is exchanged for short-lived tokens and never
+  sent to the command center itself.
+- The pipeline gains a token client (fetch, cache, refresh) and a dependency on Keycloak being up;
+  while it is down, deliveries fail and the outbox retries with backoff, as for any outage.
 
 ## Revisit when
 
-All sites can reach their identity provider from the server network — then drop API keys and
-keep only client credentials.
+A site requires the pipeline to authenticate against its own directory instead of the platform's
+Keycloak, or certificate-based workload identity becomes available at every site.

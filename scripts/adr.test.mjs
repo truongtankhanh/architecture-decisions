@@ -8,6 +8,7 @@ import {
   brokenLinks,
   checkSet,
   normalizeTable,
+  parseNewArgs,
   parseRecord,
   renderIndex,
   replaceIndex,
@@ -139,4 +140,19 @@ test('index comparison ignores Prettier column alignment', () => {
     '| ADR          | Decision   |\n| ------------ | ---------- |\n| [0001](x.md) | Use things |';
   assert.equal(normalizeTable(plain), normalizeTable(aligned));
   assert.notEqual(normalizeTable(plain), normalizeTable(aligned.replace('Use', 'Avoid')));
+});
+
+test('new takes the title with or without --supersedes', () => {
+  assert.deepEqual(parseNewArgs(['Use things']), { title: 'Use things', supersedes: undefined });
+  assert.deepEqual(parseNewArgs(['Use', 'things']), { title: 'Use things', supersedes: undefined });
+  assert.deepEqual(parseNewArgs(['Use things', '--supersedes', '8']), {
+    title: 'Use things',
+    supersedes: 8,
+  });
+  assert.deepEqual(parseNewArgs(['--supersedes', '8', 'Use things']), {
+    title: 'Use things',
+    supersedes: 8,
+  });
+  assert.throws(() => parseNewArgs([]), /usage/);
+  assert.throws(() => parseNewArgs(['x', '--supersedes', 'eight']), /record number/);
 });

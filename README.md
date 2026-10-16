@@ -1,7 +1,7 @@
 # Architecture Decisions
 
 [![Check](https://github.com/truongtankhanh/architecture-decisions/actions/workflows/check.yml/badge.svg)](https://github.com/truongtankhanh/architecture-decisions/actions/workflows/check.yml)
-![Records](https://img.shields.io/badge/decision_records-11-1168bd)
+![Records](https://img.shields.io/badge/decision_records-12-1168bd)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 The design record of a campus operations platform: why it is split the way it is, how its
@@ -9,11 +9,12 @@ systems talk to each other, how people and services are authenticated, where it 
 every service must expose to be operable. Decisions that cross system boundaries live here;
 each system keeps its own records for its internals.
 
-| System                                                                             | What it does                                                        |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| [ops-command-center](https://github.com/truongtankhanh/ops-command-center)         | Live incidents on a campus map with camera video, for control rooms |
-| [iot-telemetry-pipeline](https://github.com/truongtankhanh/iot-telemetry-pipeline) | Sensor data over MQTT into PostgreSQL, rules, alerts → incidents    |
-| [claude-code-pipelines](https://github.com/truongtankhanh/claude-code-pipelines)   | The AI-assisted delivery workflow both are built with               |
+| System                                                                             | What it does                                                                                                                                                        |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [ops-command-center](https://github.com/truongtankhanh/ops-command-center)         | Live incidents on a campus map with camera video, for control rooms                                                                                                 |
+| [iot-telemetry-pipeline](https://github.com/truongtankhanh/iot-telemetry-pipeline) | Sensor data over MQTT into PostgreSQL, rules, alerts → incidents                                                                                                    |
+| [claude-code-pipelines](https://github.com/truongtankhanh/claude-code-pipelines)   | The AI-assisted delivery workflow both are built with                                                                                                               |
+| [platform-aws](https://github.com/truongtankhanh/platform-aws)                     | Both systems on AWS as CDK code: Fargate, RDS, IoT Core, CloudFront ([ADR-0012](decisions/0012-offer-an-aws-deployment-where-the-operator-allows-cloud-hosting.md)) |
 
 The reference site, **Langbiang Tech Campus**, is fictional; the decisions are the kind a real
 deployment forces.
@@ -34,19 +35,20 @@ cross-system flow, deployment, quality targets and the risk register.
 
 <!-- adr-index:start -->
 
-| ADR                                                                                     | Decision                                                       | Status                 |
-| --------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ---------------------- |
-| [0001](decisions/0001-record-platform-decisions-separately-from-system-decisions.md)    | Record platform decisions separately from system decisions     | Accepted               |
-| [0002](decisions/0002-one-repository-per-system-monorepo-inside.md)                     | One repository per system, a monorepo inside each              | Accepted               |
-| [0003](decisions/0003-systems-integrate-through-public-apis-never-a-shared-database.md) | Systems integrate through public APIs, never a shared database | Accepted               |
-| [0004](decisions/0004-openapi-is-the-contract-between-systems.md)                       | OpenAPI is the contract between systems                        | Accepted               |
-| [0005](decisions/0005-single-sign-on-for-identity-roles-owned-by-the-platform.md)       | Single sign-on for identity, roles owned by the platform       | Accepted               |
-| [0006](decisions/0006-service-to-service-authentication.md)                             | Service-to-service authentication                              | Proposed               |
-| [0007](decisions/0007-compose-on-a-single-host-kubernetes-only-where-scale-needs-it.md) | Compose on a single host; Kubernetes only where scale needs it | Accepted               |
-| [0008](decisions/0008-connect-to-cameras-directly-over-onvif-and-rtsp.md)               | ~~Connect to cameras directly over ONVIF and RTSP~~            | Superseded by ADR-0009 |
-| [0009](decisions/0009-reach-cameras-through-the-site-s-video-management-system.md)      | Reach cameras through the site's video management system       | Accepted               |
-| [0010](decisions/0010-an-observability-baseline-every-service-meets.md)                 | An observability baseline every service meets                  | Accepted               |
-| [0011](decisions/0011-ai-assisted-delivery-with-human-review-gates.md)                  | AI-assisted delivery with human review gates                   | Accepted               |
+| ADR                                                                                       | Decision                                                        | Status                 |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------- |
+| [0001](decisions/0001-record-platform-decisions-separately-from-system-decisions.md)      | Record platform decisions separately from system decisions      | Accepted               |
+| [0002](decisions/0002-one-repository-per-system-monorepo-inside.md)                       | One repository per system, a monorepo inside each               | Accepted               |
+| [0003](decisions/0003-systems-integrate-through-public-apis-never-a-shared-database.md)   | Systems integrate through public APIs, never a shared database  | Accepted               |
+| [0004](decisions/0004-openapi-is-the-contract-between-systems.md)                         | OpenAPI is the contract between systems                         | Accepted               |
+| [0005](decisions/0005-single-sign-on-for-identity-roles-owned-by-the-platform.md)         | Single sign-on for identity, roles owned by the platform        | Accepted               |
+| [0006](decisions/0006-service-to-service-authentication.md)                               | Service-to-service authentication                               | Proposed               |
+| [0007](decisions/0007-compose-on-a-single-host-kubernetes-only-where-scale-needs-it.md)   | Compose on a single host; Kubernetes only where scale needs it  | Accepted               |
+| [0008](decisions/0008-connect-to-cameras-directly-over-onvif-and-rtsp.md)                 | ~~Connect to cameras directly over ONVIF and RTSP~~             | Superseded by ADR-0009 |
+| [0009](decisions/0009-reach-cameras-through-the-site-s-video-management-system.md)        | Reach cameras through the site's video management system        | Accepted               |
+| [0010](decisions/0010-an-observability-baseline-every-service-meets.md)                   | An observability baseline every service meets                   | Accepted               |
+| [0011](decisions/0011-ai-assisted-delivery-with-human-review-gates.md)                    | AI-assisted delivery with human review gates                    | Accepted               |
+| [0012](decisions/0012-offer-an-aws-deployment-where-the-operator-allows-cloud-hosting.md) | Offer an AWS deployment where the operator allows cloud hosting | Accepted               |
 
 <!-- adr-index:end -->
 
