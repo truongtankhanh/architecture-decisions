@@ -2,7 +2,7 @@
 
 [![Check](https://github.com/truongtankhanh/architecture-decisions/actions/workflows/check.yml/badge.svg)](https://github.com/truongtankhanh/architecture-decisions/actions/workflows/check.yml)
 ![Records](https://img.shields.io/badge/decision_records-12-1168bd)
-![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![License: CC BY-ND 4.0](https://img.shields.io/badge/license-CC%20BY--ND%204.0-lightgrey)
 
 The design record of a campus operations platform: why it is split the way it is, how its
 systems talk to each other, how people and services are authenticated, where it runs, and what
@@ -97,4 +97,5 @@ or out of order, broken relative links, and an index that does not match the rec
 
 ## License
 
-[MIT](LICENSE) © Trương Tấn Khánh
+[CC BY-ND 4.0](LICENSE) © Trương Tấn Khánh — you may share this material verbatim with
+attribution; modified versions may not be distributed.

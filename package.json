@@ -2,7 +2,7 @@
   "name": "architecture-decisions",
   "private": true,
   "description": "Architecture decision records and C4 views for a campus operations platform.",
-  "license": "MIT",
+  "license": "CC-BY-ND-4.0",
   "type": "module",
   "engines": {
     "node": ">=22"
